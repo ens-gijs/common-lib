@@ -369,7 +369,7 @@ core.namespace( 'ross.drawing.canvas_helpers', function(ns){
 		
 		
 		if(options.enable_mouse_zoom)
-			enable_mouse_zoom( canvas_dom, canvas_ctx, draw_handler, options.mouse_zoom_options );
+			enable_mouse_zoom(canvas_dom, canvas_ctx, draw_handler, options.mouse_zoom_options);
 		else
 			track_transforms(canvas_ctx);
 		
@@ -378,7 +378,10 @@ core.namespace( 'ross.drawing.canvas_helpers', function(ns){
 			canvas_ctx.identity();
 			if(options.center_zero_zero)
 				canvas_ctx.translate( (canvas_ctx.width / 2|0) + 0.5, (canvas_ctx.height / 2|0) + 0.5 );
+			
+			var os = canvas_ctx.getScale();
 			canvas_ctx.scale((options.flip_x ? -s : s),(options.flip_y ? -s : s));
+			canvas_ctx.scale_changed_event.trigger(s, os);
 			if(do_redraw) canvas_ctx.redraw();
 		};
 		
