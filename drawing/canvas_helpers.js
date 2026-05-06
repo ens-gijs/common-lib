@@ -284,7 +284,7 @@ core.namespace( 'ross.drawing.canvas_helpers', function(ns){
    * - Single pointer drag = pan
    * - Two-pointer gesture = pinch-zoom + two-finger pan
    * - Wheel = zoom (synthesized via the standard `wheel` event)
-   * - Two quick taps within 300ms / 25px = synthetic dblclick
+   * - Two quick taps within 300ms / 25px = synthetic dblclick (opt-in)
    */
   function enable_pointer_input( canvas_dom, canvas_ctx, redraw, options ){
     const default_options = {
@@ -293,7 +293,9 @@ core.namespace( 'ross.drawing.canvas_helpers', function(ns){
       max_scale: 100,
       // Mouse button mask for drag-pan (kept for desktop parity).
       pan_with_mouse_button_mask: 0x05,
-      // Synthetic double-tap thresholds (touch only).
+      // Synthesize a mousedblclick_event from two quick touch taps.
+      // Off by default — phantom double-taps during pan/zoom are usually unwanted.
+      synthesize_touch_dblclick: false,
       double_tap_ms: 300,
       double_tap_px: 25,
     };
@@ -425,7 +427,7 @@ core.namespace( 'ross.drawing.canvas_helpers', function(ns){
     canvas_dom.addEventListener('pointerup', function(evt){
       var was_tracked = endPointer(evt);
       // Synthetic double-tap for touch (mouse already gets native dblclick).
-      if(was_tracked && evt.pointerType === 'touch'){
+      if(was_tracked && evt.pointerType === 'touch' && options.synthesize_touch_dblclick){
         var now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
         var dx = lastX - lastTap.x, dy = lastY - lastTap.y;
         if(now - lastTap.t < options.double_tap_ms && Math.hypot(dx, dy) < options.double_tap_px){
